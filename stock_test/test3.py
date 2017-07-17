@@ -73,15 +73,10 @@ for index, item in enumerate(DataSet):
                     #print(short_values[index]/mid_values[index],short_values[index], mid_values[index], long_values[index])
                     if (abs(short_values[index]/mid_values[index]) < 1.035) and (abs(short_values[index]/mid_values[index]) >= 0.965):
                         if (abs(mid_values[index] / long_values[index]) < 1.03) and (abs(mid_values[index] / long_values[index]) >= 0.97):
-                            try:
-                                position[index]
-                                if position[index] == 2:
-                                    position[index] = position[-1] + 2
-                                else:
-                                    print("ERROR")
-                            except:
-                                position.append(1)
+                            if (position[index-1] == 1) or (position[index-1] == 3):
                                 position.append(2)
+                            else:
+                                position.append(1)
                         else:
                             position.append(None)
                     else:
