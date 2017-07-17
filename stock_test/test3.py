@@ -55,7 +55,6 @@ for index in range(len(DataSet[:,4])):
 # 캔들연속발생:[일]0봉전 1봉 연속 양봉발생
 # 이평이격도:[일]0봉전(종가 20, 종가 60) 3.5%이내 근접 1회이상
 # 이평이격도:[일]0봉전(종가 60, 종가 120) 3%이내 근접 1회이상
-
 #n일 이격도 = (현재 주가 / n일 이동평균) x 100
 
 
@@ -66,38 +65,33 @@ for index, item in enumerate(DataSet):
         position.append(None)
         continue
     if item[2] > np.max(DataSet[index-9:index,2]):
-        print("First")
         if item[5] >= 100000:
-            if abs(item[4]/DataSet[index-1,4]) >= 0.01:
+            if abs(item[4]/DataSet[index-1,4]) >= 1.01:
+                # print("third")
+                # print(item[4], DataSet[index-1,4])
                 if item[4] > item[1]:
-                    if abs(short_values[index]/mid_values[index]) < 0.035:
-                        if abs(mid_values[index] / long_values[index]) < 0.03:
-                            position.append(1)
-                            print(index)
-
+                    #print(short_values[index]/mid_values[index],short_values[index], mid_values[index], long_values[index])
+                    if (abs(short_values[index]/mid_values[index]) < 1.035) and (abs(short_values[index]/mid_values[index]) >= 0.965):
+                        if (abs(mid_values[index] / long_values[index]) < 1.03) and (abs(mid_values[index] / long_values[index]) >= 0.97):
+                            try:
+                                position[index]
+                                if position[index] == 2:
+                                    position[index] = position[-1] + 2
+                                else:
+                                    print("ERROR")
+                            except:
+                                position.append(1)
+                                position.append(2)
+                        else:
+                            position.append(None)
+                    else:
+                        position.append(None)
+                else:
+                    position.append(None)
+            else:
+                position.append(None)
+        else:
+            position.append(None)
+    else:
+        position.append(None)
 print(position)
-
-# golden_cross=[]
-# dead_cross=[]
-# for index, item in enumerate(zip(short_values, long_values)):
-#     current_short, current_long = item
-#     if index < 1:
-#         pass
-#     else:
-#         previous_short = short_values[index-1]
-#         previous_long = long_values[index-1]
-#         if current_short > current_long and previous_short < previous_long:
-#             golden_cross.append(current_short)
-#         else:
-#             golden_cross.append(None)
-#         if current_short < current_long and previous_short > previous_long:
-#             dead_cross.append(current_short)
-#         else:
-#             dead_cross.append(None)
-#
-# plt.plot(short_values, 'r-')
-# plt.plot(long_values, 'g-')
-# plt.plot(golden_cross, 'bo')
-#
-# #plt.plot(DataSet[:,1])
-# plt.show()
