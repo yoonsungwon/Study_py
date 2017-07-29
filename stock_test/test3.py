@@ -65,8 +65,8 @@ for index, item in enumerate(DataSet):
             (item[5] >= 100000) and \
             (abs(item[4]/DataSet[index-1,4]) >= 1.01) and \
             (item[4] > item[1]) and \
-            (abs(short_values[index] / mid_values[index]) < 1.035) and (abs(short_values[index] / mid_values[index]) >= 0.965) and \
-            (abs(mid_values[index] / long_values[index]) < 1.03) and (abs(mid_values[index] / long_values[index]) >= 0.97):
+            (0.965 <= abs(short_values[index] / mid_values[index]) < 1.035) and \
+            (0.97 <= abs(mid_values[index] / long_values[index]) < 1.03):
         if (position[index-1] == 1) or (position[index-1] == 3):
             position.append(2)
         else:
