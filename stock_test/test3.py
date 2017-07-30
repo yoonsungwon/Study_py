@@ -2,16 +2,28 @@
 import os, sys, time, csv, pprint, sqlite3
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
+import MySQLdb
 
-con = sqlite3.connect('023960.db')
+DB = 'sqlite'
+
+if DB == 'sqlite':
+    con = sqlite3.connect('opt10081.db')
+elif DB == 'mysql':
+    con = MySQLdb.connect(host='localhost', user='pyadmin', password='password', db='pystock', charset='utf8')
 cur = con.cursor()
+
 FROM = '1984-01-01'
 TO = '2017-07-31'
 
 FROM_unixtime = time.mktime(time.strptime(FROM, "%Y-%m-%d"))
 TO_unixtime = time.mktime(time.strptime(TO, "%Y-%m-%d"))
 
-cur.execute("select date, open, high, low, close, volume from ohlc where date >= ? and date <= ? order by date;", (FROM_unixtime, TO_unixtime,))
+if DB == 'sqlite':
+    cur.execute("select date, open, high, low, close, volume from ohlc where date >= ? and date <= ? order by date;", (FROM_unixtime, TO_unixtime,))
+elif DB == 'mysql':
+    cur.execute("select 종목코드, 일자, 시가, 고가, 저가, 종가, 거래량 from opt10081 where code = %s and date >= %s and date <= %s order by date;", (CODE, FROM, TO,))
+
 DataSet = np.array(cur.fetchall(), dtype=np.float32)
 
 con.close()
@@ -76,9 +88,14 @@ for index, item in enumerate(DataSet):
             position.append(2)
         else:
             position.append(None)
-print(position)
+
+tot_sum = 0
 
 for index, item in enumerate(DataSet):
-    if position[index] == 1:
+    if position[index] == 1 or position[index] == 3:
+        sum = DataSet[index+1,1] - DataSet[index,4]
+        tot_sum += sum
+        print(index, datetime.datetime.utcfromtimestamp(item[0]).strftime('%Y-%m-%dT%H:%M:%SZ'), \
+          sum, position[index], DataSet[index+1,1] / DataSet[index,4] - 1 , DataSet[index+1,1], DataSet[index,4])
 
-        866991600
+print tot_sum
