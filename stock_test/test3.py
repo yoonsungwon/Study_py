@@ -26,6 +26,7 @@ elif DB == 'mysql':
 symbol_list = cur.fetchall()
 
 Result=[]
+Earning=[]
 for Symbol in symbol_list:
     #한글 처리??
     print Symbol
@@ -75,13 +76,13 @@ for Symbol in symbol_list:
     # 이평이격도:[일]0봉전(종가 60, 종가 120) 3%이내 근접 1회이상
     #n일 이격도 = (현재 주가 / n일 이동평균) x 100
 
-    #open1 , high2 , low3, close4, volume5
+    #date0, open1 , high2 , low3, close4, volume5
     position=[] # None , 1:buy, 2:Sell, 3: Buy&Sell
-    earn=[]
+    profit=[]
     for index, item in enumerate(DataSet):
         if index < 120:
             position.append(None)
-            earn.append(None)
+            profit.append(None)
             continue
         if (item[2] > np.max(DataSet[index-10:index,2])) and \
                 (item[5] >= 100000) and \
@@ -91,21 +92,25 @@ for Symbol in symbol_list:
                 (0.97 <= abs(mid_values[index] / long_values[index]) < 1.03):
             if (position[index-1] == 1) or (position[index-1] == 3):
                 position.append(3)
-                earn = DataSet[index, 1] - DataSet[index-1, 4]
+                profit.append(DataSet[index, 1] - DataSet[index-1, 4])
+                Earning.append((Symbol, DataSet[index,0], DataSet[index-1,4], DataSet[index,1], profit[-1]))
             else:
                 position.append(1)
-                earn.append(None)
+                profit.append(None)
         else:
             if (position[index-1] == 1) or (position[index-1] == 3):
                 position.append(2)
-                earn = DataSet[index, 1] - DataSet[index-1, 4]
+                profit.append(DataSet[index, 1] - DataSet[index-1, 4])
+                Earning.append((Symbol, DataSet[index,0], DataSet[index-1,4], DataSet[index,1], profit[-1]))
             else:
                 position.append(None)
-                earn.append(None)
-
-    Result.append((str(Symbol[0]), DataSet, position, earn))
+                profit.append(None)
+    Result.append((str(Symbol[0]), DataSet, position, profit))
 else:
     con.close()
+
+
+
 
 # for index, item in enumerate(DataSet):
 #     if position[index] == 1 or position[index] == 3:
