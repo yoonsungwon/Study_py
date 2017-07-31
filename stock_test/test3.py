@@ -27,20 +27,35 @@ symbol_list = cur.fetchall()
 
 Result=[]
 Earning=[]
-for Symbol in symbol_list:
+
+if DB == 'sqlite':
+    cur.execute(
+        "select date, open, high, low, close, volume, symbol from ohlc where date >= ? and date <= ? order by date;",
+        (FROM_unixtime, TO_unixtime,))
+elif DB == 'mysql':
+    cur.execute(
+        "select 일자, 시가, 고가, 저가, 종가, 거래량 from opt10081 where date >= %s and date <= %s order by date;",
+        (FROM, TO,))
+resultSet = cur.fetchall()
+
+dataSet = {}
+for date, open, high, low, close, volume, symbol in resultSet:
+    try:
+        dataSet[symbol]
+    except KeyError:
+        dataSet[symbol] = list()
+    dataSet[symbol].append([date, open, high, low, close, volume])
+
+for keys in dataSet:
+    dataSet[keys] = np.array(dataSet[keys], dtype=np.float32)
+
+for key in dataSet.keys():
     #한글 처리??
-    print Symbol
-    if DB == 'sqlite':
-        cur.execute("select date, open, high, low, close, volume from ohlc where symbol=? and date >= ? and date <= ? order by date;", (str(Symbol[0]), FROM_unixtime, TO_unixtime,))
-    elif DB == 'mysql':
-        cur.execute("select 일자, 시가, 고가, 저가, 종가, 거래량 from opt10081 where symbol = %s and date >= %s and date <= %s order by date;", (str(Symbol), FROM, TO,))
 
-    DataSet = np.array(cur.fetchall(), dtype=np.float32)
-
-    Close = DataSet[:,4]
+    Close = dataSet[keys][:,4]
     short_period = 20
     short_values = []
-    for index in range(len(DataSet[:,4])):
+    for index in range(len(dataSet[keys][:,4])):
         if index < short_period:
             short_values.append(None)
         else:
@@ -50,7 +65,7 @@ for Symbol in symbol_list:
 
     mid_period = 60
     mid_values = []
-    for index in range(len(DataSet[:,4])):
+    for index in range(len(dataSet[keys][:,4])):
         if index < mid_period:
             mid_values.append(None)
         else:
@@ -60,7 +75,7 @@ for Symbol in symbol_list:
 
     long_period = 120
     long_values = []
-    for index in range(len(DataSet[:,4])):
+    for index in range(len(dataSet[keys][:,4])):
         if index < long_period:
             long_values.append(None)
         else:
@@ -79,33 +94,33 @@ for Symbol in symbol_list:
     #date0, open1 , high2 , low3, close4, volume5
     position=[] # None , 1:buy, 2:Sell, 3: Buy&Sell
     profit=[]
-    for index, item in enumerate(DataSet):
+    for index, item in enumerate(dataSet[keys]):
         if index < 120:
             position.append(None)
             profit.append(None)
             continue
-        if (item[2] > np.max(DataSet[index-10:index,2])) and \
+        if (item[2] > np.max(dataSet[keys][index-10:index,2])) and \
                 (item[5] >= 100000) and \
-                (abs(item[4]/DataSet[index-1,4]) >= 1.01) and \
+                (abs(item[4]/dataSet[keys][index-1,4]) >= 1.01) and \
                 (item[4] > item[1]) and \
                 (0.965 <= abs(short_values[index] / mid_values[index]) < 1.035) and \
                 (0.97 <= abs(mid_values[index] / long_values[index]) < 1.03):
             if (position[index-1] == 1) or (position[index-1] == 3):
                 position.append(3)
-                profit.append(DataSet[index, 1] - DataSet[index-1, 4])
-                Earning.append((Symbol, DataSet[index,0], DataSet[index-1,4], DataSet[index,1], profit[-1]))
+                profit.append(dataSet[keys][index, 1] - dataSet[keys][index-1, 4])
+                Earning.append((Symbol, dataSet[keys][index,0], dataSet[keys][index-1,4], dataSet[keys][index,1], profit[-1]))
             else:
                 position.append(1)
                 profit.append(None)
         else:
             if (position[index-1] == 1) or (position[index-1] == 3):
                 position.append(2)
-                profit.append(DataSet[index, 1] - DataSet[index-1, 4])
-                Earning.append((Symbol, DataSet[index,0], DataSet[index-1,4], DataSet[index,1], profit[-1]))
+                profit.append(dataSet[keys][index, 1] - dataSet[keys][index-1, 4])
+                Earning.append((keys, dataSet[keys][index,0], dataSet[keys][index-1,4], dataSet[keys][index,1], profit[-1]))
             else:
                 position.append(None)
                 profit.append(None)
-    Result.append((str(Symbol[0]), DataSet, position, profit))
+    Result.append((keys, dataSet[keys], position, profit))
 else:
     con.close()
 
