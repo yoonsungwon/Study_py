@@ -28,6 +28,7 @@ DataSet = np.array(cur.fetchall(), dtype=np.float32)
 
 con.close()
 
+
 Close = DataSet[:,4]
 short_period = 20
 short_values = []
