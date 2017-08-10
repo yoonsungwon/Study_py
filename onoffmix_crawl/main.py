@@ -2,18 +2,18 @@
 import BeautifulSoup
 import requests
 
-url = 'https://onoffmix.com/event'
-req = requests.get(url)
-soup = BeautifulSoup.BeautifulSoup(r.content)
+url = 'https://onoffmix.com/event/'
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'}
+req = requests.get(url, headers=headers)
+soup = BeautifulSoup.BeautifulSoup(req.content)
 req.close()
 
 soup2 = soup.find('div', attrs={'class': 'contentBox todayEventArea'})
 for article in soup2.findAll('ul', attrs={'class': 'todayEvent   '}):
-    print article.li[0]
+    print (article.li.a.img['src'] +  article.li.a.img['alt'])
 
-
-    print
-
+#    img = article.find('li', attrs={'class': 'eventThumbnail'}).a.img['src']
+#    title = article.find('li', attrs={'class': 'eventTitle'}).a['title']
 
 # def get_Article(url):
 #     html = requests.get(url).text
