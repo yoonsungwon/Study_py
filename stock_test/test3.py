@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import datetime
 import MySQLdb
 
-DB = 'sqlite'
+DB = 'mysql'
 
 if DB == 'sqlite':
     con = sqlite3.connect('opt10081.db')
@@ -22,7 +22,7 @@ TO_unixtime = time.mktime(time.strptime(TO, "%Y-%m-%d"))
 if DB == 'sqlite':
     cur.execute("select distinct(symbol) from ohlc where date >= ? and date <= ? order by date;", (FROM_unixtime, TO_unixtime,))
 elif DB == 'mysql':
-    cur.execute("select distinct(symbol) from opt10081 where date >= %s and date <= %s order by date;", (FROM, TO,))
+    cur.execute("select distinct(종목코드) from opt10081 where 일자 >= %s and 일자 <= %s order by 일자;", (FROM_unixtime, TO_unixtime,))
 symbol_list = cur.fetchall()
 
 Result=[]
@@ -34,8 +34,8 @@ if DB == 'sqlite':
         (FROM_unixtime, TO_unixtime,))
 elif DB == 'mysql':
     cur.execute(
-        "select 일자, 시가, 고가, 저가, 종가, 거래량 from opt10081 where date >= %s and date <= %s order by date;",
-        (FROM, TO,))
+        "select 일자, 시가, 고가, 저가, 종가, 거래량 from opt10081 where 일자 >= %s and 일자 <= %s order by 일자;",
+        (FROM_unixtime, TO_unixtime,))
 resultSet = cur.fetchall()
 
 dataSet = {}
