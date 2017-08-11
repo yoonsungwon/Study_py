@@ -4,11 +4,12 @@
 # http://wiki.pythonchallenge.com/index.php?title=Level4:Main_Page
 from email.mime import audio
 
-import requests
 import sys
+import pickle
+import urllib
 
-url = 'http://www.pythonchallenge.com/pc/def/banner.p'
-html = requests.get(url)
+handle = urllib.urlopen("http://www.pythonchallenge.com/pc/def/banner.p")
+data = pickle.load(handle)
 
-for line in str.split(html.content, '\n'):
-    print(line)
+for elt in data:
+    print "".join([e[1] * e[0] for e in elt])
