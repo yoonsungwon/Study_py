@@ -1,11 +1,27 @@
 # -*- encoding:utf8 -*-
+from lib2to3.pgen2 import driver
+
 import BeautifulSoup
 import requests
+from selenium import webdriver
+
 
 url = 'https://onoffmix.com/event/'
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'}
-req = requests.get(url, headers=headers)
-soup = BeautifulSoup.BeautifulSoup(req.content)
+
+
+driver = webdriver.Chrome('/webdriver/chromedriver')
+driver.implicitly_wait(3)
+driver.get(url)
+driver.execute_script("window.scrollBy(0,0)", "");
+driver.implicitly_wait(3)
+driver.execute_script("window.scrollBy(0,0)", "");
+driver.implicitly_wait(3)
+
+req = driver.page_source
+
+#headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'}
+#req = requests.get(url, headers=headers)
+soup = BeautifulSoup.BeautifulSoup(req)
 req.close()
 
 soup2 = soup.find('div', attrs={'class': 'contentBox todayEventArea'})
