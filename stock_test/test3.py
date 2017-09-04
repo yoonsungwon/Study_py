@@ -12,7 +12,7 @@ def insert_stock_data(CODE):
     DataFrame = pandas_datareader.data.DataReader(CODE, "yahoo", '1970-01-01', '2017-08-19')
     print DataFrame
 
-insert_stock_data('000020')
+#insert_stock_data('000020')
 
 DB = 'mysql'
 
