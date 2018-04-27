@@ -22,6 +22,6 @@ class Poll(models.Model):
         return self.area
 
 class Choice(models.Model):
-    poll = models.ForeignKey(Poll)
-    candidate = models.ForeignKey(Candidate)
+    poll = models.ForeignKey(Poll, on_delete=models.DO_NOTHING)
+    candidate = models.ForeignKey(Candidate, on_delete=models.DO_NOTHING)
     votes = models.IntegerField(default=0)
